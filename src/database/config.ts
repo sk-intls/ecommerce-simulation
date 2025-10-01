@@ -1,12 +1,19 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+import { Product } from "../entities/Product";
+import {
+  Customer,
+  PremiumCustomer,
+  RegularCustomer,
+} from "../entities/Customer";
+import { Order } from "../entities/Order";
 
 export const AppDataSource = new DataSource({
   type: "sqlite",
   database: "ecommerce.db",
   synchronize: true,
   logging: false,
-  entities: [],
+  entities: [Product, RegularCustomer, PremiumCustomer, Order, Customer],
 });
 
 async function initializeDB(): Promise<DataSource> {

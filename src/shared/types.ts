@@ -40,3 +40,10 @@ export type OrderStatusType =
   | "CANCELLED"
   | "SHIPPED"
   | "COMPLETED";
+
+export interface FakeCustomer {
+  id: number;
+  name: string;
+  customerType: CustomerType;
+  birth?: Date;
+}

@@ -9,6 +9,12 @@ import {
 import { OrderStatusType, PaymentStatus } from "../shared/types";
 import { Customer } from "./Customer";
 
+export type OrderSummary = Pick<Order, 'id' | 'status' | 'total' | 'shippingCost' | 'paymentStatus' | 'transactionId' | 'createdAt' | 'updatedAt'> & {
+  customerId?: number;
+  customerName?: string;
+  totalWithShipping: number;
+};
+
 @Entity("orders")
 export class Order {
   @PrimaryGeneratedColumn()
@@ -71,7 +77,7 @@ export class Order {
     return this.total + this.shippingCost;
   }
 
-  getSummary() {
+  getSummary(): OrderSummary {
     return {
       id: this.id,
       status: this.status,

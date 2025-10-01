@@ -53,9 +53,6 @@ export class Store {
     try {
       const product = this.productRepository.create(productData);
       const savedProduct = await this.productRepository.save(product);
-      console.log(
-        `Product added: ${savedProduct.name} (ID: ${savedProduct.id})`
-      );
       return savedProduct;
     } catch (error) {
       console.error("Failed to add product: ", error);
@@ -98,7 +95,6 @@ export class Store {
       }
 
       const savedCustomer = await this.customersRepository.save(customer);
-      console.log(`Customer ${customer.name} has been saved`);
       return savedCustomer;
     } catch (error) {
       console.log("Error while saving customer: ", error);

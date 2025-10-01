@@ -11,7 +11,7 @@ export class PaymentServise {
     const shippingCost =
       customerType == CustomerType.PREMIUM ? 0 : PaymentServise.SHIPPING_COST;
     const totalAmount = shippingCost + orderTotal;
-    console.log(`Total amount to charge ${totalAmount}`);
+    console.log(`Total amount to charge ${totalAmount.toFixed(2)}`);
     await this.simulatePaymentDelay();
     const paymentSuccessful = Math.random() < 0.85;
     const transactionId = this.generateFakeTransactionId();
@@ -45,8 +45,8 @@ export class PaymentServise {
   }
 
   private generateFakeTransactionId(): string {
-    const part_1 = Date.now().toString(36);
-    const part_2 = Math.random().toString(36);
+    const part_1 = Date.now().toString(36).toUpperCase();
+    const part_2 = Math.random().toString(36).toUpperCase();
     return `TXN_${part_1}_${part_2}`;
   }
 }

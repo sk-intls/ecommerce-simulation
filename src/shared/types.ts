@@ -18,3 +18,18 @@ export type CartItem<T> = {
 };
 
 export type CustomerTierType = "GOLD" | "SILVER" | "PLATINUM";
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+}
+
+export interface PaymentResult {
+  success: boolean;
+  transactionId: string;
+  status: PaymentStatus;
+  totalAmount: number;
+  shippingCost: number;
+  message: string;
+}

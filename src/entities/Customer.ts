@@ -11,6 +11,7 @@ import {
   CustomerType,
   IProduct,
 } from "../shared/types";
+import { RequirePremium } from "../decorators/RequirePremium";
 
 @Entity("customers")
 @TableInheritance({ column: { type: "varchar", name: "customerType" } })
@@ -76,6 +77,11 @@ export abstract class Customer {
     for (const item of this.cart) {
       yield item;
     }
+  }
+
+  @RequirePremium()
+  getShippingCost(): number {
+    return 0;
   }
 }
 

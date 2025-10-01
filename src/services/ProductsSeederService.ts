@@ -1,4 +1,5 @@
 import { Store } from "../entities/Store";
+import { Product, isProduct } from "../entities/Product";
 import { IProduct, FakeStoreProduct } from "../shared/types";
 
 export class StoreSeeder {
@@ -51,7 +52,11 @@ export class StoreSeeder {
           description: fakeProduct.description,
           category: fakeProduct.category,
         };
-        await this.store.addProduct(productData);
+        
+        const createdProduct = await this.store.addProduct(productData);
+        if (!isProduct(createdProduct)) {
+          throw new Error(`Invalid product created: ${JSON.stringify(createdProduct)}`);
+        }
       }
       console.log("Products seeded successfully");
     } catch (error) {

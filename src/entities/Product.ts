@@ -24,9 +24,18 @@ export class Product {
 export function isProduct(obj: any): obj is Product {
   return (
     !!obj &&
-    typeof obj.id == "number" &&
-    typeof obj.name == "string" &&
-    typeof obj.price == "number" &&
-    typeof obj.stock == "number"
+    typeof obj === "object" &&
+    typeof obj.id === "number" &&
+    obj.id > 0 &&
+    typeof obj.name === "string" &&
+    obj.name.trim().length > 0 &&
+    typeof obj.price === "number" &&
+    obj.price >= 0 &&
+    Number.isFinite(obj.price) &&
+    typeof obj.stock === "number" &&
+    obj.stock >= 0 &&
+    Number.isInteger(obj.stock) &&
+    (obj.description === undefined || typeof obj.description === "string") &&
+    (obj.category === undefined || typeof obj.category === "string")
   );
 }

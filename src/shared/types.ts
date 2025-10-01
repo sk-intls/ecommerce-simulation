@@ -33,3 +33,10 @@ export interface PaymentResult {
   shippingCost: number;
   message: string;
 }
+
+export type OrderStatusType =
+  | "PENDING"
+  | "PAID"
+  | "CANCELLED"
+  | "SHIPPED"
+  | "COMPLETED";

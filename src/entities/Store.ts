@@ -99,7 +99,7 @@ export class Store {
         throw new Error("No such product found");
       }
 
-      existingProduct.stock = (existingProduct.stock || 0) + quantity;
+      existingProduct.addStock(quantity);
       await this.productRepository.save(existingProduct);
 
       if (existingProduct.price < 50) {

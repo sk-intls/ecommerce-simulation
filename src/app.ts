@@ -79,7 +79,6 @@ async function demonstrateCustomerJourney(
   let itemCount = 0;
   let subtotal = 0;
 
-  // Use the generator to iterate through cart items
   for (const item of customer.iterateCart()) {
     itemCount++;
     const itemTotal = item.product.price * item.quantity;

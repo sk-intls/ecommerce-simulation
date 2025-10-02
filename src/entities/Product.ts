@@ -11,14 +11,36 @@ export class Product {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   price!: number;
 
-  @Column({ type: "integer" })
-  stock!: number;
+  #stock!: number;
 
   @Column({ type: "text", length: 100, nullable: true })
   description?: string;
 
   @Column({ type: "text", length: 100, nullable: true })
   category?: string;
+
+  @Column({ type: "integer" })
+  get stock(): number {
+    return this.#stock;
+  }
+
+  set stock(value: number) {
+    if (value < 0) {
+      throw new Error("Stock cannot be negative");
+    }
+    if (!Number.isInteger(value)) {
+      throw new Error("Stock must be an integer");
+    }
+    this.#stock = value;
+  }
+
+  addStock(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error("Quantity to add must be positive");
+    }
+    this.stock = this.stock + quantity;
+  }
+
 }
 
 export function isProduct(obj: any): obj is Product {

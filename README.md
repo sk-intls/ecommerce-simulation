@@ -21,7 +21,7 @@ A TypeScript-based e-commerce simulation demonstrating advanced OOP concepts, de
 
 ### Design Patterns
 - **Singleton** - Global Store instance
-- **Observer** - Customer notifications (restock/sales)
+- **Observer** - Customer notifications (restock)
 - **Decorator** - `@RequirePremium` for restricted actions
 
 ### Async Operations

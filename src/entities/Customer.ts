@@ -10,12 +10,13 @@ import {
   CustomerTierType,
   CustomerType,
   IProduct,
+  IObserver,
 } from "../shared/types";
 import { RequirePremium } from "../decorators/RequirePremium";
 
 @Entity("customers")
 @TableInheritance({ column: { type: "varchar", name: "customerType" } })
-export abstract class Customer {
+export abstract class Customer implements IObserver {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -36,6 +37,7 @@ export abstract class Customer {
 
   abstract getDiscountRate(): number;
   abstract getIsPremium(): boolean;
+  abstract update(product: IProduct): void;
 
   getName(): string {
     return this.name;
@@ -51,7 +53,7 @@ export abstract class Customer {
     );
 
     if (existingItemInCart) {
-      existingItemInCart.quantity += 1;
+      existingItemInCart.quantity += quantity;
     } else {
       this.cart.push({ product, quantity });
     }
@@ -94,6 +96,12 @@ export class RegularCustomer extends Customer {
   getIsPremium(): boolean {
     return false;
   }
+
+  update(product: IProduct): void {
+    console.log(
+      `Regular customer ${this.name} is updated about product ${product.name}`
+    );
+  }
 }
 
 @ChildEntity("premium")
@@ -126,5 +134,11 @@ export class PremiumCustomer extends Customer {
         this.discountRate = 0.15;
         break;
     }
+  }
+
+  update(product: IProduct): void {
+    console.log(
+      `Premium customer ${this.name} is updated about product ${product.name}`
+    );
   }
 }

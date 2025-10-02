@@ -60,35 +60,5 @@ export  const fakeCustomers: FakeCustomer[] = [
         name: "Jack Anderson",
         customerType: CustomerType.REGULAR,
         birth: new Date("1994-02-09"),
-      },
-      {
-        id: 11,
-        name: "Katherine Lee",
-        customerType: CustomerType.PREMIUM,
-        birth: new Date("1984-10-23"),
-      },
-      {
-        id: 12,
-        name: "Liam O'Connor",
-        customerType: CustomerType.REGULAR,
-        birth: new Date("1996-05-16"),
-      },
-      {
-        id: 13,
-        name: "Maya Patel",
-        customerType: CustomerType.PREMIUM,
-        birth: new Date("1987-01-11"),
-      },
-      {
-        id: 14,
-        name: "Nathan Brown",
-        customerType: CustomerType.REGULAR,
-        birth: new Date("1992-09-03"),
-      },
-      {
-        id: 15,
-        name: "Olivia Taylor",
-        customerType: CustomerType.PREMIUM,
-        birth: new Date("1988-07-28"),
-      },
+      }
     ];

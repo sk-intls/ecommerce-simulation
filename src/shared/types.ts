@@ -57,3 +57,8 @@ export interface FakeStoreProduct {
   image: string;
   rating: { rate: number; count: number };
 }
+
+export interface IObserver {
+  update(product: IProduct): void;
+  getId(): number;
+}

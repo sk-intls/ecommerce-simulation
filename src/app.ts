@@ -46,6 +46,12 @@ async function main() {
     [cheapProduct],
     CustomerType.REGULAR
   );
+  customers.forEach((c) => store.subscribe(c));
+
+  await store.restockProduct(expensiveProduct, 500);
+  console.log(`      Notified premium customers about ${expensiveProduct.name}`);
+  await store.restockProduct(cheapProduct, 2000);
+  console.log(`      Notified all customers about ${cheapProduct.name}`);
 }
 
 async function demonstrateCustomerJourney(

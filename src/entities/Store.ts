@@ -13,9 +13,18 @@ export class Store {
   private customersRepository!: Repository<Customer>;
   private ordersRepository!: Repository<Order>;
   private paymentService: PaymentServise;
+  private observers: Map<number, Customer> = new Map();
 
   private constructor() {
     this.paymentService = new PaymentServise();
+  }
+
+  private notify(product: IProduct, customerType?: CustomerType): void {
+    this.observers.forEach((customer) => {
+      if (!customerType || customer.customerType === customerType) {
+        customer.update(product);
+      }
+    });
   }
 
   public static get instance(): Store {
@@ -66,6 +75,23 @@ export class Store {
     } catch (error) {
       console.error("Failed to fetch products: ", error);
       throw error;
+    }
+  }
+
+  async restockProduct(product: IProduct, quantity: number): Promise<void> {
+    const existingProduct = await this.productRepository.findOneBy({
+      id: product.id,
+    });
+    if (!existingProduct) {
+      throw new Error("No such product found");
+    }
+
+    existingProduct.stock = (existingProduct.stock || 0) + quantity;
+    await this.productRepository.save(existingProduct);
+    if (existingProduct.price < 50) {
+      this.notify(product);
+    } else {
+      this.notify(product, CustomerType.PREMIUM);
     }
   }
 
@@ -192,6 +218,20 @@ export class Store {
     } catch (error) {
       console.error("Error fetching orders: ", error);
       throw error;
+    }
+  }
+
+  subscribe(customer: Customer) {
+    const customerId = customer.getId();
+    if (!this.observers.has(customerId)) {
+      this.observers.set(customerId, customer);
+      console.log(
+        `customer ${customer.name} is now subscribed to notifications`
+      );
+    } else {
+      console.log(
+        `customer ${customer.name} is already subscribed to notifications`
+      );
     }
   }
 }

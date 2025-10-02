@@ -4,7 +4,12 @@ import { AppDataSource } from "../database/config";
 import { Customer, PremiumCustomer, RegularCustomer } from "./Customer";
 import { Order } from "./Order";
 import { PaymentServise } from "../services/PaymentService";
-import { CustomerType, IProduct, PaymentStatus } from "../shared/types";
+import {
+  CustomerType,
+  IProduct,
+  PaymentStatus,
+  CustomerTierType,
+} from "../shared/types";
 
 export class Store {
   static #instance: Store;
@@ -79,19 +84,32 @@ export class Store {
   }
 
   async restockProduct(product: IProduct, quantity: number): Promise<void> {
-    const existingProduct = await this.productRepository.findOneBy({
-      id: product.id,
-    });
-    if (!existingProduct) {
-      throw new Error("No such product found");
+    if (!product || !product.id) {
+      throw new Error("Product is required and must have an ID");
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      throw new Error("Quantity must be a positive integer");
     }
 
-    existingProduct.stock = (existingProduct.stock || 0) + quantity;
-    await this.productRepository.save(existingProduct);
-    if (existingProduct.price < 50) {
-      this.notify(product);
-    } else {
-      this.notify(product, CustomerType.PREMIUM);
+    try {
+      const existingProduct = await this.productRepository.findOneBy({
+        id: product.id,
+      });
+      if (!existingProduct) {
+        throw new Error("No such product found");
+      }
+
+      existingProduct.stock = (existingProduct.stock || 0) + quantity;
+      await this.productRepository.save(existingProduct);
+
+      if (existingProduct.price < 50) {
+        this.notify(existingProduct);
+      } else {
+        this.notify(existingProduct, CustomerType.PREMIUM);
+      }
+    } catch (error) {
+      console.error("Failed to restock product:", error);
+      throw error;
     }
   }
 
@@ -102,6 +120,22 @@ export class Store {
     tier?: string;
   }): Promise<Customer> {
     try {
+      const existingCustomerQuery: any = { name: customerData.name };
+      if (customerData.birth) {
+        existingCustomerQuery.birth = customerData.birth;
+      }
+      
+      const existingCustomer = await this.customersRepository.findOne({
+        where: existingCustomerQuery
+      });
+      
+      if (existingCustomer) {
+        console.log(
+          `Customer already exists: ${existingCustomer.name} (ID: ${existingCustomer.id})${customerData.birth ? ` born on ${customerData.birth.toDateString()}` : ''}`
+        );
+        return existingCustomer;
+      }
+
       let customer: Customer;
       if (customerData.customerType == CustomerType.PREMIUM) {
         customer = new PremiumCustomer();
@@ -109,9 +143,14 @@ export class Store {
         customer.customerType = CustomerType.PREMIUM;
         if (customerData.birth) customer.birth = customerData.birth;
         if (customerData.tier) {
-          (customer as PremiumCustomer).setPremiumTier(
-            customerData.tier as any
-          );
+          const validTiers: CustomerTierType[] = ["GOLD", "SILVER", "PLATINUM"];
+          if (validTiers.includes(customerData.tier as CustomerTierType)) {
+            (customer as PremiumCustomer).setPremiumTier(
+              customerData.tier as CustomerTierType
+            );
+          } else {
+            throw new Error(`Invalid tier: ${customerData.tier}. Must be one of: ${validTiers.join(", ")}`);
+          }
         }
       } else {
         customer = new RegularCustomer();
@@ -121,6 +160,9 @@ export class Store {
       }
 
       const savedCustomer = await this.customersRepository.save(customer);
+      console.log(
+        `New customer created: ${savedCustomer.name} (ID: ${savedCustomer.id}) - ${savedCustomer.customerType}`
+      );
       return savedCustomer;
     } catch (error) {
       console.log("Error while saving customer: ", error);
@@ -221,17 +263,54 @@ export class Store {
     }
   }
 
-  subscribe(customer: Customer) {
+  subscribe(customer: Customer): void {
+    if (!customer || !customer.getId) {
+      throw new Error("Customer is required and must have getId method");
+    }
+
     const customerId = customer.getId();
+    if (!customerId) {
+      throw new Error("Customer must have a valid ID");
+    }
+
     if (!this.observers.has(customerId)) {
       this.observers.set(customerId, customer);
       console.log(
-        `customer ${customer.name} is now subscribed to notifications`
+        `Customer ${customer.name} (ID: ${customerId}) is now subscribed to notifications`
       );
     } else {
       console.log(
-        `customer ${customer.name} is already subscribed to notifications`
+        `Customer ${customer.name} (ID: ${customerId}) is already subscribed to notifications`
       );
     }
+  }
+
+  unsubscribe(customer: Customer): boolean {
+    if (!customer || !customer.getId) {
+      throw new Error("Customer is required and must have getId method");
+    }
+
+    const customerId = customer.getId();
+    if (!customerId) {
+      throw new Error("Customer must have a valid ID");
+    }
+
+    const removed = this.observers.delete(customerId);
+    if (removed) {
+      console.log(
+        `Customer ${customer.name} (ID: ${customerId}) has been unsubscribed from notifications`
+      );
+    } else {
+      console.log(
+        `Customer ${customer.name} (ID: ${customerId}) was not subscribed to notifications`
+      );
+    }
+    return removed;
+  }
+
+  clearAllSubscriptions(): void {
+    const count = this.observers.size;
+    this.observers.clear();
+    console.log(`Cleared ${count} subscription(s)`);
   }
 }

@@ -48,6 +48,16 @@ export abstract class Customer implements IObserver {
   }
 
   addToCart(product: IProduct, quantity: number = 1): void {
+    if (!product || !product.id) {
+      throw new Error("Product is required and must have an ID");
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      throw new Error("Quantity must be a positive integer");
+    }
+    if (product.price < 0) {
+      throw new Error("Product price cannot be negative");
+    }
+
     const existingItemInCart = this.cart.find(
       (item) => item.product.id === product.id
     );
